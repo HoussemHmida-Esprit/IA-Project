@@ -38,7 +38,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🗺️ Geographic Analysis")
+st.title("Geographic Analysis")
 st.markdown("*Analyze accident distribution by department*")
 
 # Check data availability

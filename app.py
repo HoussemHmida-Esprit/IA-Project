@@ -108,7 +108,7 @@ def create_filter_sidebar(df):
 
 def display_overview(df, filtered_df):
     """Display overview statistics."""
-    st.header("📊 Overview")
+    st.header("Overview")
     
     # Key metrics
     col1, col2, col3, col4 = st.columns(4)

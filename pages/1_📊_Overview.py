@@ -22,11 +22,11 @@ COLLISION_TYPE_LABELS = {
 
 st.set_page_config(
     page_title="Overview - Road Accident Analysis",
-    page_icon="",
+    page_icon="📊",
     layout="wide"
 )
 
-st.title(" Overview")
+st.title("Overview")
 st.markdown("*Key statistics and summary of French road accident data*")
 
 # Check data availability

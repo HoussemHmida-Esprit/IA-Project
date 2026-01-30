@@ -30,7 +30,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📈 Temporal Analysis")
+st.title("Temporal Analysis")
 st.markdown("*Analyze accident trends over time*")
 
 # Check data availability

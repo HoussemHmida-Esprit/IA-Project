@@ -54,11 +54,11 @@ INTERSECTION_LABELS = {
 
 st.set_page_config(
     page_title="Conditions Analysis - Road Accident Analysis",
-    page_icon="",
+    page_icon="🌤️",
     layout="wide"
 )
 
-st.title(" Conditions Analysis")
+st.title("Conditions Analysis")
 st.markdown("*Analyze accidents by weather, lighting, and collision conditions*")
 
 # Check data availability

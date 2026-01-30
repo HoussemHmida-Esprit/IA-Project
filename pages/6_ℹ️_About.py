@@ -9,11 +9,11 @@ from pathlib import Path
 
 st.set_page_config(
     page_title="About - Road Accident Analysis",
-    page_icon="ℹ",
+    page_icon="ℹ️",
     layout="wide"
 )
 
-st.title("ℹ About This Project")
+st.title("About This Project")
 st.markdown("*French Road Accident Analysis and Visualization System*")
 
 st.divider()

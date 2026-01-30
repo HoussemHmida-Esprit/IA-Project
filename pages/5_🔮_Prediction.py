@@ -50,7 +50,7 @@ MONTH_OPTIONS = {1: "January", 2: "February", 3: "March", 4: "April", 5: "May",
 
 st.set_page_config(page_title="Prediction", page_icon="🔮", layout="wide")
 
-st.title("🔮 Multi-Target Prediction")
+st.title("Multi-Target Prediction")
 st.markdown("*Predict collision type AND severity based on accident conditions*")
 
 
