@@ -15,6 +15,9 @@ wheels/
 .kiro/
 .vscode/
 
+# Streamlit
+.streamlit/secrets.toml
+
 # Test cache
 .pytest_cache/
 
