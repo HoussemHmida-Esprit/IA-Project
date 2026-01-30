@@ -28,11 +28,14 @@ wheels/
 correlation_analysis.png
 
 # Data files - too large for GitHub
-data/*.csv
-data/cleaned_accidents.csv
-data/model_ready.csv
+# Keep cleaned data for deployment
+data/caracteristiques*.csv
+data/usagers*.csv
+data/caract-*.csv
+# data/cleaned_accidents.csv  # Needed for deployment
+# data/model_ready.csv  # Needed for deployment
 
-# Model files - too large for GitHub (can be regenerated)
-models/*.pkl
+# Model files - can be regenerated but include for deployment
+# models/*.pkl
 
 
