@@ -110,7 +110,7 @@ if any(len(v) > 0 for v in filters.values() if isinstance(v, list)):
     st.sidebar.success(f"Showing {len(filtered_df):,} of {len(df):,} records")
 
 # Top 10 Departments
-st.header("🏆 Top 10 Departments with Most Accidents")
+st.header("Top 10 Departments with Most Accidents")
 
 if "dep" in filtered_df.columns:
     dept_counts = filtered_df.groupby("dep").size().reset_index(name="count")
@@ -143,7 +143,7 @@ if "dep" in filtered_df.columns:
     st.plotly_chart(fig_top10, use_container_width=True)
     
     # Display as table
-    st.subheader("📋 Top 10 Departments Table")
+    st.subheader("Top 10 Departments Table")
     top_10_display = top_10.copy()
     top_10_display = top_10_display[["dep", "dept_name", "count"]].copy()
     top_10_display.columns = ["Code", "Department", "Accidents"]
@@ -156,7 +156,7 @@ else:
 st.divider()
 
 # All Departments Distribution
-st.header("📊 Accidents by Department (All)")
+st.header("Accidents by Department (All)")
 
 if "dep" in filtered_df.columns:
     dept_counts = filtered_df.groupby("dep").size().reset_index(name="count")
@@ -189,7 +189,7 @@ if "dep" in filtered_df.columns:
 st.divider()
 
 # Urban vs Rural Analysis
-st.header("🏙️ Urban vs Rural Distribution")
+st.header("Urban vs Rural Distribution")
 
 col1, col2 = st.columns(2)
 
@@ -238,7 +238,7 @@ with col2:
 st.divider()
 
 # Department Statistics Summary
-st.header("📈 Department Statistics")
+st.header("Department Statistics")
 
 if "dep" in filtered_df.columns:
     dept_counts = filtered_df.groupby("dep").size()
@@ -278,7 +278,7 @@ if "dep" in filtered_df.columns:
 st.divider()
 
 # Severity by Department (Top 10)
-st.header("⚠️ Severity Analysis by Top Departments")
+st.header("Severity Analysis by Top Departments")
 
 if "dep" in filtered_df.columns and "num_killed" in filtered_df.columns:
     dept_severity = filtered_df.groupby("dep").agg({

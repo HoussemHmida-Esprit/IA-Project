@@ -19,7 +19,7 @@ st.markdown("*French Road Accident Analysis and Visualization System*")
 st.divider()
 
 # Project Purpose
-st.header("🎯 Project Purpose")
+st.header("Project Purpose")
 st.markdown("""
 This project provides a comprehensive solution for analyzing and visualizing French road traffic 
 accidents. The system enables users to:
@@ -35,7 +35,7 @@ inform prevention strategies.
 st.divider()
 
 # Data Sources
-st.header("📊 Data Sources")
+st.header("Data Sources")
 st.markdown("""
 This project uses official French road accident data from the **BAAC** 
 (Bulletin d'Analyse des Accidents Corporels de la circulation routière).
@@ -79,7 +79,7 @@ The raw data undergoes several preprocessing steps:
 st.divider()
 
 # Model Methodology
-st.header("🤖 Model Methodology")
+st.header("Model Methodology")
 st.markdown("""
 ### Collision Type Prediction Model
 
@@ -137,7 +137,7 @@ environmental and temporal conditions.
 st.divider()
 
 # Dashboard Pages
-st.header("📑 Dashboard Pages")
+st.header("Dashboard Pages")
 st.markdown("""
 | Page | Description |
 |------|-------------|
@@ -152,7 +152,7 @@ st.markdown("""
 st.divider()
 
 # Technical Stack
-st.header("🛠️ Technical Stack")
+st.header("Technical Stack")
 
 col1, col2 = st.columns(2)
 
@@ -177,7 +177,7 @@ with col2:
 st.divider()
 
 # Project Structure
-st.header("📁 Project Structure")
+st.header("Project Structure")
 st.code("""
 road-accident-analysis/
 ├── app.py                    # Main Streamlit application

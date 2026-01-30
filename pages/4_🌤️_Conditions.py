@@ -121,7 +121,7 @@ if any(len(v) > 0 for v in filters.values() if isinstance(v, list)):
     st.sidebar.success(f"Showing {len(filtered_df):,} of {len(df):,} records")
 
 # Lighting Conditions Analysis
-st.header("💡 Accidents by Lighting Conditions")
+st.header("Accidents by Lighting Conditions")
 
 col1, col2 = st.columns(2)
 
@@ -171,7 +171,7 @@ with col2:
 st.divider()
 
 # Weather Conditions Analysis
-st.header("🌧️ Accidents by Weather Conditions")
+st.header("Accidents by Weather Conditions")
 
 col1, col2 = st.columns(2)
 
@@ -221,7 +221,7 @@ with col2:
 st.divider()
 
 # Collision Type Distribution
-st.header("💥 Collision Type Distribution")
+st.header("Collision Type Distribution")
 
 col1, col2 = st.columns(2)
 
@@ -305,7 +305,7 @@ else:
 st.divider()
 
 # Cross-Analysis: Lighting vs Weather
-st.header("🔄 Cross-Analysis: Lighting vs Weather")
+st.header("Cross-Analysis: Lighting vs Weather")
 
 if "lum" in filtered_df.columns and "atm" in filtered_df.columns:
     cross_data = filtered_df.groupby(["lum", "atm"]).size().reset_index(name="count")
@@ -329,7 +329,7 @@ else:
 st.divider()
 
 # Severity by Conditions
-st.header("⚠️ Severity Analysis by Conditions")
+st.header("Severity Analysis by Conditions")
 
 tab1, tab2 = st.tabs(["By Lighting", "By Weather"])
 

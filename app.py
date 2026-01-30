@@ -144,7 +144,7 @@ def display_overview(df, filtered_df):
     st.divider()
     
     # Data summary
-    st.subheader("📋 Data Summary")
+    st.subheader("Data Summary")
     
     col1, col2 = st.columns(2)
     

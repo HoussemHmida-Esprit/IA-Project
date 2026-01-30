@@ -180,7 +180,7 @@ if not available_models:
 st.success(f"✅ Found {len(available_models)} model(s)")
 
 # Model selection
-st.header("🤖 Select Model")
+st.header("Select Model")
 model_name = st.selectbox(
     "Choose a trained model:",
     options=list(available_models.keys()),
@@ -211,39 +211,39 @@ else:
 st.divider()
 
 # Input Section
-st.header("📝 Enter Accident Conditions")
+st.header("Enter Accident Conditions")
 
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Environmental Conditions")
     
-    lighting_label = st.selectbox("💡 Lighting", list(LIGHTING_OPTIONS.values()), index=0)
+    lighting_label = st.selectbox("Lighting", list(LIGHTING_OPTIONS.values()), index=0)
     lighting_code = [k for k, v in LIGHTING_OPTIONS.items() if v == lighting_label][0]
     
-    weather_label = st.selectbox("🌧️ Weather", list(WEATHER_OPTIONS.values()), index=0)
+    weather_label = st.selectbox("Weather", list(WEATHER_OPTIONS.values()), index=0)
     weather_code = [k for k, v in WEATHER_OPTIONS.items() if v == weather_label][0]
     
-    location_label = st.selectbox("🏙️ Location", list(LOCATION_OPTIONS.values()), index=0)
+    location_label = st.selectbox("Location", list(LOCATION_OPTIONS.values()), index=0)
     location_code = [k for k, v in LOCATION_OPTIONS.items() if v == location_label][0]
     
-    intersection_label = st.selectbox("🔀 Intersection", list(INTERSECTION_OPTIONS.values()), index=0)
+    intersection_label = st.selectbox("Intersection", list(INTERSECTION_OPTIONS.values()), index=0)
     intersection_code = [k for k, v in INTERSECTION_OPTIONS.items() if v == intersection_label][0]
 
 with col2:
     st.subheader("Time & Context")
     
-    hour = st.slider("🕐 Hour", 0, 23, 12)
+    hour = st.slider("Hour", 0, 23, 12)
     
-    day_label = st.selectbox("📅 Day", list(DAY_OPTIONS.values()), index=0)
+    day_label = st.selectbox("Day", list(DAY_OPTIONS.values()), index=0)
     day_code = [k for k, v in DAY_OPTIONS.items() if v == day_label][0]
     
-    month_label = st.selectbox("📆 Month", list(MONTH_OPTIONS.values()), index=0)
+    month_label = st.selectbox("Month", list(MONTH_OPTIONS.values()), index=0)
     month_code = [k for k, v in MONTH_OPTIONS.items() if v == month_label][0]
     
     # Additional features for multi-target models
-    num_users = st.number_input("👥 Number of people involved", min_value=1, max_value=10, value=2)
-    num_light_injury = st.number_input("🤕 Light injuries", min_value=0, max_value=10, value=0)
+    num_users = st.number_input("Number of people involved", min_value=1, max_value=10, value=2)
+    num_light_injury = st.number_input("Light injuries", min_value=0, max_value=10, value=0)
 
 st.divider()
 
@@ -261,9 +261,9 @@ features = {
 }
 
 # Prediction
-st.header("🎯 Prediction Results")
+st.header("Prediction Results")
 
-if st.button("🔮 Predict", type="primary", use_container_width=True):
+if st.button("Predict", type="primary", use_container_width=True):
     with st.spinner("Making prediction..."):
         col_pred, sev_pred, col_proba, sev_proba = predict_multitarget(model_data, features)
         
@@ -274,7 +274,7 @@ if st.button("🔮 Predict", type="primary", use_container_width=True):
             with result_col1:
                 st.success("### Collision Type")
                 col_label = COLLISION_LABELS.get(col_pred, f"Unknown ({col_pred})")
-                st.markdown(f"## 💥 {col_label}")
+                st.markdown(f"## {col_label}")
                 if col_proba:
                     confidence = col_proba.get(col_pred, 0) * 100
                     st.metric("Confidence", f"{confidence:.1f}%")
@@ -283,7 +283,7 @@ if st.button("🔮 Predict", type="primary", use_container_width=True):
                 if sev_pred is not None:
                     st.success("### Severity")
                     sev_label = SEVERITY_LABELS.get(sev_pred, f"Unknown ({sev_pred})")
-                    st.markdown(f"## 🚑 {sev_label}")
+                    st.markdown(f"## {sev_label}")
                     if sev_proba:
                         confidence = sev_proba.get(sev_pred, 0) * 100
                         st.metric("Confidence", f"{confidence:.1f}%")
@@ -291,7 +291,7 @@ if st.button("🔮 Predict", type="primary", use_container_width=True):
             # Show probabilities
             if col_proba or sev_proba:
                 st.divider()
-                st.subheader("📊 Probability Distributions")
+                st.subheader("Probability Distributions")
                 
                 prob_col1, prob_col2 = st.columns(2)
                 
@@ -318,7 +318,7 @@ if st.button("🔮 Predict", type="primary", use_container_width=True):
 st.divider()
 
 # Information
-st.header("ℹ️ About")
+st.header("About")
 st.markdown("""
 This tool uses machine learning models trained on French road accident data (BAAC).
 

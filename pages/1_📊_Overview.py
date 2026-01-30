@@ -89,7 +89,7 @@ if any(len(v) > 0 for v in filters.values() if isinstance(v, list)):
     st.sidebar.success(f"Showing {len(filtered_df):,} of {len(df):,} records")
 
 # Key Metrics Section
-st.header("🎯 Key Metrics")
+st.header("Key Metrics")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -137,12 +137,12 @@ with col4:
 st.divider()
 
 # Additional Statistics
-st.header("📈 Additional Statistics")
+st.header("Additional Statistics")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.subheader("📅 Time Range")
+    st.subheader("Time Range")
     if "year" in filtered_df.columns:
         years = filtered_df["year"].dropna()
         if len(years) > 0:
@@ -151,7 +151,7 @@ with col1:
             st.write(f"**Years covered:** {int(years.nunique())}")
 
 with col2:
-    st.subheader("🗺️ Geographic Coverage")
+    st.subheader("Geographic Coverage")
     if "dep" in filtered_df.columns:
         num_departments = filtered_df["dep"].nunique()
         st.write(f"**Departments:** {num_departments}")
@@ -160,7 +160,7 @@ with col2:
         st.write(f"**Total users involved:** {total_users:,}")
 
 with col3:
-    st.subheader("💥 Collision Types")
+    st.subheader("Collision Types")
     if "col" in filtered_df.columns:
         num_collision_types = filtered_df["col"].nunique()
         st.write(f"**Types recorded:** {num_collision_types}")
@@ -172,7 +172,7 @@ with col3:
 st.divider()
 
 # Severity Summary
-st.header("⚠️ Severity Summary")
+st.header("Severity Summary")
 
 if all(col in filtered_df.columns for col in ["num_killed", "num_hospitalized", "num_light_injury"]):
     severity_data = {
@@ -207,7 +207,7 @@ else:
 st.divider()
 
 # Data Quality Info
-st.header("📋 Data Quality")
+st.header("Data Quality")
 
 col1, col2 = st.columns(2)
 
