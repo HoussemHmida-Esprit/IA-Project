@@ -101,3 +101,86 @@ def create_pie_chart(
         title=title
     )
     return fig
+
+def create_accident_map(
+    df: pd.DataFrame,
+    lat_col: str = 'lat',
+    lon_col: str = 'long',
+    map_type: str = 'heatmap',
+    zoom: int = 4
+) -> go.Figure:
+    """
+    Create a map visualization of accidents.
+
+    Args:
+        df: DataFrame containing accident data
+        lat_col: Name of latitude column
+        lon_col: Name of longitude column
+        map_type: Type of map ('heatmap' or 'scatter')
+        zoom: Initial zoom level
+
+    Returns:
+        Plotly figure object
+    """
+    # Ensure coordinates are numeric
+    df_map = df.copy()
+    if lat_col not in df_map.columns or lon_col not in df_map.columns:
+        fig = go.Figure()
+        fig.update_layout(
+            title=f"Missing coordinates columns: {lat_col}, {lon_col}",
+            xaxis={"visible": False},
+            yaxis={"visible": False}
+        )
+        return fig
+
+    df_map[lat_col] = pd.to_numeric(df_map[lat_col], errors='coerce')
+    df_map[lon_col] = pd.to_numeric(df_map[lon_col], errors='coerce')
+    df_map = df_map.dropna(subset=[lat_col, lon_col])
+
+    if df_map.empty:
+        # Return empty figure with message
+        fig = go.Figure()
+        fig.update_layout(
+            title="No valid location data available for selected filters",
+            xaxis={"visible": False},
+            yaxis={"visible": False}
+        )
+        return fig
+
+    # Center roughly on France
+    center_lat = 46.603354
+    center_lon = 1.888334
+
+    if map_type == 'heatmap':
+        fig = px.density_mapbox(
+            df_map,
+            lat=lat_col,
+            lon=lon_col,
+            radius=10,
+            center=dict(lat=center_lat, lon=center_lon),
+            zoom=zoom,
+            mapbox_style="open-street-map",
+            title="Accident Density Heatmap"
+        )
+    else:
+        # Scatter map
+        # Determine color column if available
+        color_col = None
+        if "max_severity" in df_map.columns:
+            color_col = "max_severity"
+        elif "col" in df_map.columns:
+            color_col = "col"
+
+        fig = px.scatter_mapbox(
+            df_map,
+            lat=lat_col,
+            lon=lon_col,
+            color=color_col,
+            zoom=zoom,
+            center=dict(lat=center_lat, lon=center_lon),
+            mapbox_style="open-street-map",
+            title="Accident Locations"
+        )
+
+    fig.update_layout(margin={"r":0,"t":40,"l":0,"b":0})
+    return fig
