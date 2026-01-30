@@ -67,10 +67,15 @@ def discover_models():
         model_name = file.stem.replace('_multitarget', '')
         # Create friendly name
         parts = model_name.split('_')
-        if len(parts) >= 2:
+        if len(parts) >= 1:
             model_type = parts[0].upper()
-            pca_status = "with PCA" if parts[1] == 'pca' else "without PCA"
-            friendly_name = f"{model_type} {pca_status}"
+            # Simplified name without PCA mention
+            if model_type == "RF":
+                friendly_name = "Random Forest"
+            elif model_type == "XGB":
+                friendly_name = "XGBoost"
+            else:
+                friendly_name = model_type
         else:
             friendly_name = model_name
         
@@ -177,8 +182,6 @@ if not available_models:
     )
     st.stop()
 
-st.success(f"✅ Found {len(available_models)} model(s)")
-
 # Model selection
 st.header("Select Model")
 model_name = st.selectbox(
@@ -243,7 +246,6 @@ with col2:
     
     # Additional features for multi-target models
     num_users = st.number_input("Number of people involved", min_value=1, max_value=10, value=2)
-    num_light_injury = st.number_input("Light injuries", min_value=0, max_value=10, value=0)
 
 st.divider()
 
@@ -256,8 +258,7 @@ features = {
     'hour': hour,
     'day_of_week': day_code,
     'month': month_code,
-    'num_users': num_users,
-    'num_light_injury': num_light_injury
+    'num_users': num_users
 }
 
 # Prediction
@@ -329,7 +330,7 @@ This tool uses machine learning models trained on French road accident data (BAA
 **Features Used:**
 - Environmental: Lighting, weather, location, intersection type
 - Temporal: Hour, day of week, month
-- Context: Number of people involved, light injuries
+- Context: Number of people involved
 
 **Note:** Predictions are based on historical patterns and should be used for informational purposes only.
 """)
