@@ -7,6 +7,7 @@ Requirements: 3.5, 3.6
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from utils.visualizations import create_accident_map
 from utils.data_loader import (
     load_cleaned_data, 
     get_data_status_message, 
@@ -234,6 +235,42 @@ with col2:
             textposition='outside'
         )
         st.plotly_chart(fig_location_bar, use_container_width=True)
+
+st.divider()
+
+# Interactive Map
+st.header("🗺️ Interactive Accident Map")
+
+if "lat" in filtered_df.columns and "long" in filtered_df.columns:
+    # Controls
+    col_map1, col_map2 = st.columns([1, 3])
+
+    with col_map1:
+        map_type = st.radio(
+            "Map Style",
+            options=["Heatmap", "Scatter"],
+            help="Choose between density heatmap or individual points"
+        )
+
+        # Limit points for performance if too many
+        max_points = 5000
+        if len(filtered_df) > max_points:
+            st.info(f"Showing first {max_points:,} points for performance")
+            map_df = filtered_df.head(max_points)
+        else:
+            map_df = filtered_df
+
+    with col_map2:
+        with st.spinner(f"Generating {map_type} map..."):
+            fig_map = create_accident_map(
+                map_df,
+                lat_col="lat",
+                lon_col="long",
+                map_type=map_type.lower()
+            )
+            st.plotly_chart(fig_map, use_container_width=True)
+else:
+    st.warning("Latitude/Longitude data not available for mapping.")
 
 st.divider()
 
