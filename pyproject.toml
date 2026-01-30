@@ -18,11 +18,16 @@ dependencies = [
     "seaborn>=0.12.0",
 ]
 
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.setuptools]
 py-modules = []
 
 [tool.setuptools.packages.find]
 include = ["utils*", "pages*", "models*"]
+where = ["."]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
