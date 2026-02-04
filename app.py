@@ -205,7 +205,9 @@ def main():
         "- **Temporal**: Time-based analysis\n"
         "- **Geographic**: Department-based analysis\n"
         "- **Conditions**: Weather/lighting analysis\n"
-        "- **Prediction**: Collision type prediction"
+        "- **Prediction**: Collision type prediction\n"
+        "- **Explainability**: Understand model decisions (SHAP)\n"
+        "- **Forecasting**: Predict future accident counts (LSTM)"
     )
 
 

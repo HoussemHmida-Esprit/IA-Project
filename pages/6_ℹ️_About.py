@@ -146,6 +146,8 @@ st.markdown("""
 | **🗺️ Geographic** | Department-based accident distribution |
 | **🌤️ Conditions** | Analysis by weather and lighting conditions |
 | **🔮 Prediction** | Interactive collision type prediction |
+| **🔍 Explainability** | SHAP analysis for model interpretability |
+| **📅 Forecasting** | LSTM time-series forecasting |
 | **ℹ️ About** | Project documentation (this page) |
 """)
 
