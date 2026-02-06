@@ -323,7 +323,8 @@ class AccidentForecaster:
     
     def load_model(self, path: str):
         """Load trained model"""
-        checkpoint = torch.load(path, map_location=self.device)
+        # Load with weights_only=False for sklearn objects
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
         
         self.model = AccidentLSTM().to(self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])

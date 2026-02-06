@@ -91,8 +91,15 @@ class AccidentXAI:
         else:
             X_sample = self.X
         
+        # Handle MultiOutputClassifier
+        model_to_explain = self.model
+        if hasattr(self.model, 'estimators_'):
+            # MultiOutputClassifier - use first estimator (collision type)
+            print("Detected MultiOutputClassifier, using first estimator (collision type)")
+            model_to_explain = self.model.estimators_[0]
+        
         # Create SHAP explainer
-        self.explainer = shap.TreeExplainer(self.model)
+        self.explainer = shap.TreeExplainer(model_to_explain)
         
         # Compute SHAP values
         self.shap_values = self.explainer(X_sample)

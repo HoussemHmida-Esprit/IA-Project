@@ -252,11 +252,14 @@ else:  # View existing model
     # Load model
     with st.spinner("Loading trained model..."):
         try:
-            # Get categorical dims and num classes from data
             forecaster.load_model(str(MODEL_PATH))
             st.success("✅ Model loaded successfully")
+        except FileNotFoundError:
+            st.error(f"Model file not found: {MODEL_PATH}")
+            st.stop()
         except Exception as e:
             st.error(f"Error loading model: {e}")
+            st.info("💡 Try training a new model using 'Train New Model' mode in the sidebar.")
             st.stop()
     
     # Forecast settings
