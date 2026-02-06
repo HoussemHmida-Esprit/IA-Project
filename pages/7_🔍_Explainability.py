@@ -97,11 +97,11 @@ def load_xai(model_path, data_path):
     xai.load_model_and_data()
     return xai
 
-@st.cache_data
-def compute_shap(_xai, sample_size):
-    """Compute SHAP values (cached)"""
-    _xai.compute_shap_values(sample_size=sample_size)
-    return True
+def compute_shap_if_needed(xai, sample_size):
+    """Compute SHAP values if not already computed"""
+    if xai.shap_values is None:
+        xai.compute_shap_values(sample_size=sample_size)
+    return xai
 
 # Load model
 with st.spinner(f"Loading {selected_model} model..."):
@@ -115,7 +115,7 @@ with st.spinner(f"Loading {selected_model} model..."):
 # Compute SHAP values
 with st.spinner("Computing SHAP values... This may take a minute."):
     try:
-        compute_shap(xai, sample_size)
+        xai = compute_shap_if_needed(xai, sample_size)
         st.success(f"✅ SHAP values computed for {sample_size} samples")
     except Exception as e:
         st.error(f"Error computing SHAP values: {e}")

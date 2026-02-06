@@ -54,6 +54,11 @@ class AccidentXAI:
             self.model = model_data
             self.feature_names = None
         
+        # Handle MultiOutputClassifier - extract first estimator for collision prediction
+        if hasattr(self.model, 'estimators_'):
+            print("Detected MultiOutputClassifier - using first estimator (collision type)")
+            self.model = self.model.estimators_[0]
+        
         # Load data
         df = pd.read_csv(self.data_path)
         
@@ -64,8 +69,10 @@ class AccidentXAI:
         # Prepare features
         self.X = df[self.feature_names].copy()
         
-        # Get target (severity)
-        if 'max_severity' in df.columns:
+        # Get target (collision type)
+        if 'col' in df.columns:
+            self.y = df['col']
+        elif 'max_severity' in df.columns:
             self.y = df['max_severity']
         elif 'grav' in df.columns:
             self.y = df['grav']
@@ -74,6 +81,7 @@ class AccidentXAI:
         
         print(f"✓ Loaded model from {self.model_path}")
         print(f"✓ Loaded data: {len(self.X)} samples, {len(self.feature_names)} features")
+        print(f"✓ Model type: {type(self.model).__name__}")
         
     def compute_shap_values(self, sample_size: int = 1000):
         """
