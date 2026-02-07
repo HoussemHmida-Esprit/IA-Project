@@ -239,8 +239,8 @@ class AccidentTabTransformer:
         self.numerical_scaler = StandardScaler()
         self.target_encoder = LabelEncoder()
         
-        # Feature definitions
-        self.categorical_features = ['lum', 'atm', 'agg', 'int', 'day_of_week', 'month']
+        # Feature definitions - using only available features
+        self.categorical_features = ['lum', 'agg', 'int', 'day_of_week']
         self.numerical_features = ['hour', 'num_users']
         
     def load_and_prepare_data(self):
@@ -323,7 +323,7 @@ class AccidentTabTransformer:
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=learning_rate, weight_decay=0.01)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.5, patience=5, verbose=True
+            optimizer, mode='min', factor=0.5, patience=5
         )
         
         # Training loop
@@ -489,7 +489,7 @@ class AccidentTabTransformer:
     
     def load_model(self, path: str, categorical_dims: List[int], num_classes: int):
         """Load model and preprocessors"""
-        checkpoint = torch.load(path, map_location=self.device)
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
         
         self.model = TabTransformer(
             categorical_dims=categorical_dims,
@@ -529,11 +529,9 @@ def main():
     # Example prediction
     categorical_data = {
         'lum': 1,  # Daylight
-        'atm': 1,  # Normal weather
         'agg': 1,  # Urban
         'int': 1,  # No intersection
-        'day_of_week': 0,  # Monday
-        'month': 6  # June
+        'day_of_week': 0  # Monday
     }
     
     numerical_data = {

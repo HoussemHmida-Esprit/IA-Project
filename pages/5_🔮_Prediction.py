@@ -10,6 +10,10 @@ import numpy as np
 import pickle
 from pathlib import Path
 import os
+import sys
+
+# Add models directory to path
+sys.path.append(str(Path(__file__).parent.parent))
 
 # Model paths
 MODELS_DIR = Path("models")
@@ -62,14 +66,12 @@ def discover_models():
     if not MODELS_DIR.exists():
         return models
     
-    # Look for multitarget .pkl files
+    # Look for multitarget .pkl files (Random Forest, XGBoost)
     for file in MODELS_DIR.glob("*_multitarget.pkl"):
         model_name = file.stem.replace('_multitarget', '')
-        # Create friendly name
         parts = model_name.split('_')
         if len(parts) >= 1:
             model_type = parts[0].upper()
-            # Simplified name without PCA mention
             if model_type == "RF":
                 friendly_name = "Random Forest"
             elif model_type == "XGB":
@@ -79,32 +81,73 @@ def discover_models():
         else:
             friendly_name = model_name
         
-        models[friendly_name] = file
+        models[friendly_name] = {'path': file, 'type': 'sklearn'}
+    
+    # Look for TabTransformer .pth files
+    for file in MODELS_DIR.glob("tab_transformer*.pth"):
+        models["TabTransformer"] = {'path': file, 'type': 'pytorch'}
     
     return models
 
 
 @st.cache_resource
-def load_model(model_path):
-    """Load a trained model with metadata."""
+def load_sklearn_model(model_path):
+    """Load a trained sklearn model with metadata."""
     try:
         with open(model_path, 'rb') as f:
             model_data = pickle.load(f)
         
-        # Handle both old and new format
         if isinstance(model_data, dict):
             return model_data
         else:
-            # Old format - just the model
             return {'model': model_data, 'features': None, 'use_pca': False}
     except Exception as e:
         st.error(f"Error loading model: {e}")
         return None
 
 
-def predict_multitarget(model_data, features: dict) -> tuple:
-    """Make multi-target prediction."""
-    # Extract model and metadata
+@st.cache_resource
+def load_tabtransformer_model(model_path):
+    """Load TabTransformer model."""
+    try:
+        from models.tab_transformer import AccidentTabTransformer
+        import torch
+        
+        # Load checkpoint to get metadata
+        checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+        
+        # Get categorical dimensions from checkpoint
+        categorical_features = checkpoint['categorical_features']
+        categorical_encoders = checkpoint['categorical_encoders']
+        categorical_dims = [len(enc.classes_) for enc in categorical_encoders.values()]
+        num_classes = len(checkpoint['target_encoder'].classes_)
+        
+        # Initialize transformer
+        tab_transformer = AccidentTabTransformer('data/model_ready.csv')
+        tab_transformer.load_model(
+            str(model_path),
+            categorical_dims=categorical_dims,
+            num_classes=num_classes
+        )
+        
+        return {
+            'transformer': tab_transformer,
+            'type': 'tabtransformer',
+            'categorical_features': categorical_features,
+            'numerical_features': checkpoint['numerical_features']
+        }
+    except ImportError:
+        st.error("PyTorch not installed. TabTransformer requires PyTorch.")
+        return None
+    except Exception as e:
+        st.error(f"Error loading TabTransformer: {e}")
+        return None
+        st.error(f"Error loading model: {e}")
+        return None
+
+
+def predict_sklearn(model_data, features: dict) -> tuple:
+    """Make prediction with sklearn model."""
     if isinstance(model_data, dict):
         model = model_data.get('model')
         selected_features = model_data.get('features')
@@ -118,36 +161,27 @@ def predict_multitarget(model_data, features: dict) -> tuple:
         pca = None
         scaler = None
     
-    # Determine feature names
     if selected_features:
         feature_names = selected_features
     else:
-        # Default features
-        feature_names = ['lum', 'atm', 'agg', 'int', 'hour', 'day_of_week', 'month']
+        feature_names = ['lum', 'agg', 'int', 'hour', 'day_of_week', 'num_users']
     
-    # Create feature array
     X = np.array([[features.get(f, 0) for f in feature_names]])
     
-    # Apply PCA if needed
     if use_pca and scaler and pca:
         X = scaler.transform(X)
         X = pca.transform(X)
     
     try:
-        # Predict
         predictions = model.predict(X)
         
-        # Handle different model types
         if len(predictions.shape) == 2 and predictions.shape[1] == 2:
-            # Multi-output model
             col_pred = int(predictions[0, 0])
             sev_pred = int(predictions[0, 1])
         else:
-            # Single output model
             col_pred = int(predictions[0])
             sev_pred = None
         
-        # Get probabilities if available
         col_proba = {}
         sev_proba = {}
         
@@ -155,7 +189,6 @@ def predict_multitarget(model_data, features: dict) -> tuple:
             try:
                 probas = model.predict_proba(X)
                 if isinstance(probas, list) and len(probas) == 2:
-                    # Multi-output
                     col_proba = {i: float(p) for i, p in enumerate(probas[0][0])}
                     sev_proba = {i: float(p) for i, p in enumerate(probas[1][0])}
                 else:
@@ -166,6 +199,39 @@ def predict_multitarget(model_data, features: dict) -> tuple:
         return col_pred, sev_pred, col_proba, sev_proba
     except Exception as e:
         st.error(f"Prediction error: {e}")
+        return None, None, {}, {}
+
+
+def predict_tabtransformer(transformer_data, features: dict) -> tuple:
+    """Make prediction with TabTransformer."""
+    try:
+        transformer = transformer_data['transformer']
+        cat_features = transformer_data['categorical_features']
+        num_features = transformer_data['numerical_features']
+        
+        # Prepare categorical data
+        categorical_data = {f: features.get(f, 0) for f in cat_features}
+        
+        # Prepare numerical data
+        numerical_data = {f: features.get(f, 0) for f in num_features}
+        
+        # Predict
+        predicted_label, probs_dict, attention = transformer.predict(
+            categorical_data,
+            numerical_data
+        )
+        
+        # Convert to format expected by UI
+        col_pred = predicted_label
+        sev_pred = None  # TabTransformer predicts collision type only
+        
+        # Convert probabilities
+        col_proba = {i: prob for i, (label, prob) in enumerate(probs_dict.items())}
+        sev_proba = {}
+        
+        return col_pred, sev_pred, col_proba, sev_proba
+    except Exception as e:
+        st.error(f"TabTransformer prediction error: {e}")
         return None, None, {}, {}
 
 
@@ -190,17 +256,44 @@ model_name = st.selectbox(
     help="Select which model to use for prediction"
 )
 
-model_data = load_model(available_models[model_name])
+# Load model based on type
+model_info = available_models[model_name]
+model_type = model_info['type']
+
+if model_type == 'sklearn':
+    model_data = load_sklearn_model(model_info['path'])
+elif model_type == 'pytorch':
+    model_data = load_tabtransformer_model(model_info['path'])
+else:
+    st.error(f"Unknown model type: {model_type}")
+    st.stop()
 
 if model_data is None:
     st.error(f"Failed to load model: {model_name}")
     st.stop()
 
 # Show model info
-if isinstance(model_data, dict):
-    st.info(f"**Model:** {model_name}")
-    if 'metrics' in model_data:
-        metrics = model_data['metrics']
+st.info(f"**Model:** {model_name} ({model_type.upper()})")
+
+# Show metrics
+if model_type == 'sklearn' and 'metrics' in model_data:
+    metrics = model_data['metrics']
+    
+    # Check if this is an optimized model
+    if 'optimized_accuracy' in metrics:
+        st.success("🎯 **Optimized Model** - Hyperparameters tuned with Optuna")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Baseline Accuracy", f"{metrics.get('baseline_accuracy', 0):.1%}")
+        with col2:
+            st.metric("Optimized Accuracy", f"{metrics.get('optimized_accuracy', 0):.1%}")
+        with col3:
+            improvement = metrics.get('improvement_pct', 0)
+            st.metric("Improvement", f"{improvement:+.2f}%", delta=f"{improvement:+.2f}%")
+        with col4:
+            st.metric("F1-Score", f"{metrics.get('optimized_f1', 0):.3f}")
+    elif 'collision_accuracy' in metrics:
+        # Old format (multi-target)
         col1, col2, col3 = st.columns(3)
         with col1:
             st.metric("Collision Accuracy", f"{metrics.get('collision_accuracy', 0):.1%}")
@@ -208,8 +301,13 @@ if isinstance(model_data, dict):
             st.metric("Severity Accuracy", f"{metrics.get('severity_accuracy', 0):.1%}")
         with col3:
             st.metric("Overall F1", f"{metrics.get('avg_f1', 0):.3f}")
-else:
-    st.info(f"**Loaded:** {model_name}")
+    else:
+        # Simple accuracy display
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Accuracy", f"{metrics.get('baseline_accuracy', 0):.1%}")
+        with col2:
+            st.metric("F1-Score", f"{metrics.get('baseline_f1', 0):.3f}")
 
 st.divider()
 
@@ -266,7 +364,14 @@ st.header("Prediction Results")
 
 if st.button("Predict", type="primary", use_container_width=True):
     with st.spinner("Making prediction..."):
-        col_pred, sev_pred, col_proba, sev_proba = predict_multitarget(model_data, features)
+        # Use appropriate prediction function based on model type
+        if model_type == 'sklearn':
+            col_pred, sev_pred, col_proba, sev_proba = predict_sklearn(model_data, features)
+        elif model_type == 'pytorch':
+            col_pred, sev_pred, col_proba, sev_proba = predict_tabtransformer(model_data, features)
+        else:
+            st.error("Unknown model type")
+            st.stop()
         
         if col_pred is not None:
             # Display results
